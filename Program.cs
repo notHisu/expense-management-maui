@@ -19,6 +19,13 @@ class Program
         var dbService = serviceProvider.GetRequiredService<IDatabaseService>();
         await dbService.InitializeAsync();
         
+        // Ensure database is created with the main context too
+        using (var scope = serviceProvider.CreateScope())
+        {
+            var context = scope.ServiceProvider.GetRequiredService<ExpenseDbContext>();
+            await context.Database.EnsureCreatedAsync();
+        }
+        
         Console.WriteLine("=== Expense Management Console Demo ===");
         Console.WriteLine();
         
@@ -32,6 +39,7 @@ class Program
     private static void ConfigureServices(ServiceCollection services)
     {
         services.AddLogging(builder => builder.AddConsole());
+        services.AddDbContext<ExpenseDbContext>();
         services.AddSingleton<IDatabaseService, DatabaseService>();
         services.AddSingleton<IExpenseService, ExpenseService>();
         services.AddSingleton<ICategoryService, CategoryService>();

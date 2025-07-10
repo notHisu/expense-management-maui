@@ -8,15 +8,21 @@ public class ExpenseDbContext : DbContext
     public DbSet<Expense> Expenses { get; set; }
     public DbSet<Category> Categories { get; set; }
 
-    public ExpenseDbContext()
+    public ExpenseDbContext() : base()
     {
-        Database.EnsureCreated();
+    }
+
+    public ExpenseDbContext(DbContextOptions<ExpenseDbContext> options) : base(options)
+    {
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        var dbPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "expenses.db");
-        optionsBuilder.UseSqlite($"Filename={dbPath}");
+        if (!optionsBuilder.IsConfigured)
+        {
+            var dbPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "expenses.db");
+            optionsBuilder.UseSqlite($"Filename={dbPath}");
+        }
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
